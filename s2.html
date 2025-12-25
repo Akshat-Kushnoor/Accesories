@@ -1,0 +1,357 @@
+<!-- s2.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WHAT — Control Store & Microinstructions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Shadows+Into+Light+Two&family=Macondo&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background-color: #000000;
+            color: #00E5FF;
+            font-family: 'Poppins', sans-serif;
+            width: 100vw;
+            height: 56.25vw;
+            max-height: 100vh;
+            max-width: 177.78vh;
+            margin: auto;
+            position: absolute;
+            top: 0; bottom: 0; left: 0; right: 0;
+            overflow: hidden;
+        }
+        .slide-container {
+            width: 100%;
+            height: 100%;
+            padding: 2%;
+            display: grid;
+            grid-template-rows: auto 1fr;
+            gap: 1.2%;
+        }
+        .slide-title {
+            font-family: 'Shadows Into Light Two', cursive;
+            font-size: 2.5vw;
+            text-align: center;
+            color: #00E5FF;
+            border-bottom: 2px solid #00E5FF;
+            padding-bottom: 0.6%;
+        }
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 1.2%;
+            height: 100%;
+        }
+        .panel {
+            background-color: #0A1A2F;
+            border: 2px solid #00E5FF;
+            border-radius: 8px;
+            padding: 1.2%;
+            display: flex;
+            flex-direction: column;
+        }
+        .panel-wide {
+            grid-column: span 2;
+        }
+        .panel-title {
+            font-family: 'Shadows Into Light Two', cursive;
+            font-size: 1.2vw;
+            color: #00E5FF;
+            margin-bottom: 0.8%;
+            text-align: center;
+            border-bottom: 1px dashed #00E5FF;
+            padding-bottom: 0.4%;
+        }
+        .control-store-diagram {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            gap: 0.6vw;
+        }
+        .cs-input {
+            font-size: 0.75vw;
+            text-align: center;
+        }
+        .cs-arrow {
+            font-size: 1.2vw;
+        }
+        .cs-block {
+            background-color: #000000;
+            border: 3px solid #00E5FF;
+            padding: 1vw 2vw;
+            font-size: 1.1vw;
+            font-weight: 600;
+            text-align: center;
+        }
+        .cs-labels {
+            display: flex;
+            gap: 1vw;
+            font-size: 0.6vw;
+            margin-top: 0.3vw;
+        }
+        .cs-label {
+            border: 1px solid #00E5FF;
+            padding: 0.2vw 0.5vw;
+        }
+        .format-diagram {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            gap: 0.8vw;
+        }
+        .format-row {
+            display: flex;
+            width: 95%;
+            border: 2px solid #00E5FF;
+        }
+        .format-field {
+            flex: 1;
+            background-color: #000000;
+            border-right: 1px solid #00E5FF;
+            padding: 0.5vw;
+            font-size: 0.65vw;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .format-field:last-child {
+            border-right: none;
+        }
+        .field-name {
+            font-weight: 600;
+            margin-bottom: 0.2vw;
+        }
+        .field-desc {
+            font-size: 0.5vw;
+            opacity: 0.8;
+        }
+        .legend {
+            font-family: 'Macondo', cursive;
+            font-size: 0.65vw;
+            text-align: center;
+            margin-top: 0.5vw;
+        }
+        .comparison-diagram {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            gap: 0.5vw;
+        }
+        .comp-section {
+            text-align: center;
+        }
+        .comp-label {
+            font-size: 0.7vw;
+            margin-bottom: 0.3vw;
+            font-weight: 600;
+        }
+        .comp-bits {
+            display: flex;
+            gap: 0.3vw;
+            justify-content: center;
+        }
+        .bit-box {
+            background-color: #000000;
+            border: 1px solid #00E5FF;
+            padding: 0.3vw 0.6vw;
+            font-size: 0.6vw;
+        }
+        .vs-arrow {
+            font-size: 1.5vw;
+            margin: 0.3vw 0;
+        }
+        .caption {
+            font-family: 'Macondo', cursive;
+            font-size: 0.6vw;
+            text-align: center;
+            color: #00E5FF;
+            margin-top: auto;
+        }
+        .decoder-diagram {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex: 1;
+            gap: 1vw;
+        }
+        .decoder-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.4vw;
+        }
+        .decoder-input {
+            background-color: #000000;
+            border: 2px solid #00E5FF;
+            padding: 0.4vw 0.8vw;
+            font-size: 0.7vw;
+            font-weight: 600;
+        }
+        .decoder-arrows {
+            display: flex;
+            flex-direction: column;
+            font-size: 1vw;
+        }
+        .decoder-output {
+            background-color: #000000;
+            border: 1px dashed #00E5FF;
+            padding: 0.3vw 0.5vw;
+            font-size: 0.55vw;
+            text-align: center;
+        }
+        .table-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Macondo', cursive;
+        }
+        th, td {
+            border: 1px solid #00E5FF;
+            padding: 0.4vw 0.6vw;
+            text-align: center;
+            font-size: 0.7vw;
+        }
+        th {
+            background-color: #000000;
+            font-weight: 600;
+        }
+        td {
+            background-color: #0A1A2F;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <h1 class="slide-title">WHAT — Control Store & Microinstructions</h1>
+        <div class="content-grid">
+            <div class="panel">
+                <h2 class="panel-title">Control Store</h2>
+                <div class="control-store-diagram">
+                    <div class="cs-input">Microsequencer / CAR</div>
+                    <span class="cs-arrow">↓</span>
+                    <div class="cs-block">Control Store</div>
+                    <span class="cs-arrow">↓</span>
+                    <div class="cs-input">Control Signal Decoder</div>
+                    <div class="cs-labels">
+                        <span class="cs-label">Address</span>
+                        <span class="cs-label">μInstruction</span>
+                        <span class="cs-label">Next Addr</span>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-wide">
+                <h2 class="panel-title">Microinstruction Format</h2>
+                <div class="format-diagram">
+                    <div class="format-row">
+                        <div class="format-field">
+                            <span class="field-name">F1</span>
+                            <span class="field-desc">Register Transfers</span>
+                        </div>
+                        <div class="format-field">
+                            <span class="field-name">F2</span>
+                            <span class="field-desc">ALU Control</span>
+                        </div>
+                        <div class="format-field">
+                            <span class="field-name">F3</span>
+                            <span class="field-desc">Memory / I/O</span>
+                        </div>
+                        <div class="format-field">
+                            <span class="field-name">NextAddr</span>
+                            <span class="field-desc">Next μAddress</span>
+                        </div>
+                    </div>
+                    <div class="legend">Fields encode mutually exclusive actions</div>
+                </div>
+            </div>
+            <div class="panel">
+                <h2 class="panel-title">Encoded vs Unencoded</h2>
+                <div class="comparison-diagram">
+                    <div class="comp-section">
+                        <div class="comp-label">Unencoded (Wide)</div>
+                        <div class="comp-bits">
+                            <span class="bit-box">PCout</span>
+                            <span class="bit-box">MARin</span>
+                            <span class="bit-box">MDRin</span>
+                        </div>
+                    </div>
+                    <span class="vs-arrow">↓</span>
+                    <div class="comp-section">
+                        <div class="comp-label">Encoded (Narrow)</div>
+                        <div class="comp-bits">
+                            <span class="bit-box">F1</span>
+                            <span class="bit-box">F2</span>
+                            <span class="bit-box">F3</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="caption">Encoding reduces control store width</div>
+            </div>
+            <div class="panel">
+                <h2 class="panel-title">Field Decoder Fan-out</h2>
+                <div class="decoder-diagram">
+                    <div class="decoder-column">
+                        <div class="decoder-input">F1</div>
+                        <span class="decoder-arrows">↓</span>
+                        <div class="decoder-output">Register Transfer<br>Decoder</div>
+                    </div>
+                    <div class="decoder-column">
+                        <div class="decoder-input">F2</div>
+                        <span class="decoder-arrows">↓</span>
+                        <div class="decoder-output">ALU<br>Decoder</div>
+                    </div>
+                    <div class="decoder-column">
+                        <div class="decoder-input">F3</div>
+                        <span class="decoder-arrows">↓</span>
+                        <div class="decoder-output">Memory<br>Decoder</div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-wide">
+                <h2 class="panel-title">Field Encoding Lookup</h2>
+                <div class="table-container">
+                    <table>
+                        <tr>
+                            <th>F2 Code</th>
+                            <th>Operation</th>
+                            <th>Description</th>
+                        </tr>
+                        <tr>
+                            <td>000</td>
+                            <td>ADD</td>
+                            <td>Addition operation</td>
+                        </tr>
+                        <tr>
+                            <td>001</td>
+                            <td>SUB</td>
+                            <td>Subtraction operation</td>
+                        </tr>
+                        <tr>
+                            <td>010</td>
+                            <td>AND</td>
+                            <td>Logical AND operation</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

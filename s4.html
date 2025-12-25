@@ -1,0 +1,385 @@
+<!-- s4.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timing & Microcode Examples</title>
+    <link href="https://fonts.googleapis.com/css2?family=Shadows+Into+Light+Two&family=Macondo&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background-color: #000000;
+            color: #00E5FF;
+            font-family: 'Poppins', sans-serif;
+            width: 100vw;
+            height: 56.25vw;
+            max-height: 100vh;
+            max-width: 177.78vh;
+            margin: auto;
+            position: absolute;
+            top: 0; bottom: 0; left: 0; right: 0;
+            overflow: hidden;
+        }
+        .slide-container {
+            width: 100%;
+            height: 100%;
+            padding: 2%;
+            display: grid;
+            grid-template-rows: auto 1fr;
+            gap: 1.5%;
+        }
+        .slide-title {
+            font-family: 'Shadows Into Light Two', cursive;
+            font-size: 2.8vw;
+            text-align: center;
+            color: #00E5FF;
+            border-bottom: 2px solid #00E5FF;
+            padding-bottom: 0.8%;
+        }
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2%;
+            height: 100%;
+        }
+        .panel {
+            background-color: #0A1A2F;
+            border: 2px solid #00E5FF;
+            border-radius: 8px;
+            padding: 1.5%;
+            display: flex;
+            flex-direction: column;
+        }
+        .panel-title {
+            font-family: 'Shadows Into Light Two', cursive;
+            font-size: 1.5vw;
+            color: #00E5FF;
+            margin-bottom: 1.5%;
+            text-align: center;
+            border-bottom: 1px dashed #00E5FF;
+            padding-bottom: 0.8%;
+        }
+        .timing-diagram {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            gap: 0.3vw;
+        }
+        .time-header {
+            display: grid;
+            grid-template-columns: 4vw repeat(4, 1fr);
+            gap: 0.2vw;
+            margin-bottom: 0.5vw;
+        }
+        .time-label {
+            font-size: 0.9vw;
+            font-weight: 600;
+            text-align: center;
+            padding: 0.3vw;
+        }
+        .time-cell {
+            background-color: #000000;
+            border: 1px solid #00E5FF;
+            text-align: center;
+            padding: 0.4vw;
+            font-size: 0.8vw;
+            font-weight: 600;
+        }
+        .signal-row {
+            display: grid;
+            grid-template-columns: 4vw repeat(4, 1fr);
+            gap: 0.2vw;
+        }
+        .signal-name {
+            font-size: 0.7vw;
+            display: flex;
+            align-items: center;
+            padding-right: 0.3vw;
+            justify-content: flex-end;
+            font-family: 'Poppins', sans-serif;
+        }
+        .signal-cell {
+            height: 1.8vw;
+            border: 1px solid #00E5FF;
+            position: relative;
+            background-color: #000000;
+        }
+        .signal-cell.active {
+            background-color: #00E5FF;
+        }
+        .signal-cell.active::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background-color: #000000;
+            transform: translateY(-50%);
+        }
+        .signal-cell.inactive::after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            border-bottom: 2px dashed #00E5FF;
+        }
+        .timing-legend {
+            display: flex;
+            justify-content: center;
+            gap: 2vw;
+            margin-top: 1vw;
+            padding-top: 0.5vw;
+            border-top: 1px dashed #00E5FF;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5vw;
+            font-size: 0.7vw;
+        }
+        .legend-box {
+            width: 1.5vw;
+            height: 0.8vw;
+            border: 1px solid #00E5FF;
+        }
+        .legend-box.active {
+            background-color: #00E5FF;
+        }
+        .table-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Macondo', cursive;
+        }
+        th {
+            background-color: #000000;
+            border: 2px solid #00E5FF;
+            padding: 0.7vw 0.5vw;
+            text-align: center;
+            font-size: 0.9vw;
+            font-weight: 600;
+        }
+        td {
+            background-color: #0A1A2F;
+            border: 1px solid #00E5FF;
+            padding: 0.6vw 0.5vw;
+            text-align: center;
+            font-size: 0.8vw;
+        }
+        .addr-cell {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            background-color: #000000;
+        }
+        .dispatch-cell {
+            color: #00E5FF;
+            font-style: italic;
+        }
+        .table-caption {
+            font-family: 'Macondo', cursive;
+            font-size: 0.75vw;
+            text-align: center;
+            color: #00E5FF;
+            margin-top: 1vw;
+            padding: 0.5vw;
+            border: 1px dashed #00E5FF;
+        }
+        .micro-note {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1vw;
+            margin-top: auto;
+            padding-top: 0.5vw;
+        }
+        .note-box {
+            display: flex;
+            align-items: center;
+            gap: 0.5vw;
+            font-size: 0.7vw;
+        }
+        .note-arrow {
+            color: #00E5FF;
+            font-size: 1vw;
+        }
+        .cycle-indicator {
+            display: flex;
+            justify-content: center;
+            margin-top: 0.5vw;
+        }
+        .cycle-box {
+            display: flex;
+            align-items: center;
+            border: 2px solid #00E5FF;
+            padding: 0.5vw 1vw;
+            gap: 0.5vw;
+        }
+        .cycle-label {
+            font-size: 0.8vw;
+            font-weight: 600;
+        }
+        .cycle-arrow {
+            font-size: 1.2vw;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <h1 class="slide-title">Timing & Microcode Examples</h1>
+        <div class="content-grid">
+            <div class="panel">
+                <h2 class="panel-title">Microcycle Timing</h2>
+                <div class="timing-diagram">
+                    <div class="time-header">
+                        <span class="time-label">Signal</span>
+                        <div class="time-cell">T0</div>
+                        <div class="time-cell">T1</div>
+                        <div class="time-cell">T2</div>
+                        <div class="time-cell">T3</div>
+                    </div>
+                    <div class="signal-row">
+                        <span class="signal-name">PCout</span>
+                        <div class="signal-cell active"></div>
+                        <div class="signal-cell inactive"></div>
+                        <div class="signal-cell inactive"></div>
+                        <div class="signal-cell inactive"></div>
+                    </div>
+                    <div class="signal-row">
+                        <span class="signal-name">MARin</span>
+                        <div class="signal-cell active"></div>
+                        <div class="signal-cell inactive"></div>
+                        <div class="signal-cell inactive"></div>
+                        <div class="signal-cell inactive"></div>
+                    </div>
+                    <div class="signal-row">
+                        <span class="signal-name">MemRead</span>
+                        <div class="signal-cell inactive"></div>
+                        <div class="signal-cell active"></div>
+                        <div class="signal-cell active"></div>
+                        <div class="signal-cell inactive"></div>
+                    </div>
+                    <div class="signal-row">
+                        <span class="signal-name">MDRout</span>
+                        <div class="signal-cell inactive"></div>
+                        <div class="signal-cell inactive"></div>
+                        <div class="signal-cell inactive"></div>
+                        <div class="signal-cell active"></div>
+                    </div>
+                    <div class="signal-row">
+                        <span class="signal-name">IRin</span>
+                        <div class="signal-cell inactive"></div>
+                        <div class="signal-cell inactive"></div>
+                        <div class="signal-cell inactive"></div>
+                        <div class="signal-cell active"></div>
+                    </div>
+                    <div class="signal-row">
+                        <span class="signal-name">ALUinc</span>
+                        <div class="signal-cell inactive"></div>
+                        <div class="signal-cell inactive"></div>
+                        <div class="signal-cell active"></div>
+                        <div class="signal-cell inactive"></div>
+                    </div>
+                    <div class="signal-row">
+                        <span class="signal-name">PCin</span>
+                        <div class="signal-cell inactive"></div>
+                        <div class="signal-cell inactive"></div>
+                        <div class="signal-cell inactive"></div>
+                        <div class="signal-cell active"></div>
+                    </div>
+                </div>
+                <div class="timing-legend">
+                    <div class="legend-item">
+                        <div class="legend-box active"></div>
+                        <span>Signal Active (HIGH)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-box"></div>
+                        <span>Signal Inactive (LOW)</span>
+                    </div>
+                </div>
+                <div class="cycle-indicator">
+                    <div class="cycle-box">
+                        <span class="cycle-label">T0</span>
+                        <span class="cycle-arrow">→</span>
+                        <span class="cycle-label">T1</span>
+                        <span class="cycle-arrow">→</span>
+                        <span class="cycle-label">T2</span>
+                        <span class="cycle-arrow">→</span>
+                        <span class="cycle-label">T3</span>
+                        <span class="cycle-arrow">→</span>
+                        <span class="cycle-label">T0</span>
+                    </div>
+                </div>
+            </div>
+            <div class="panel">
+                <h2 class="panel-title">Microcode Listing</h2>
+                <div class="table-container">
+                    <table>
+                        <tr>
+                            <th>Addr</th>
+                            <th>F1</th>
+                            <th>F2</th>
+                            <th>F3</th>
+                            <th>Next</th>
+                        </tr>
+                        <tr>
+                            <td class="addr-cell">00</td>
+                            <td>PC→MAR</td>
+                            <td>—</td>
+                            <td>MemRead</td>
+                            <td>01</td>
+                        </tr>
+                        <tr>
+                            <td class="addr-cell">01</td>
+                            <td>MDR→IR</td>
+                            <td>PC←PC+1</td>
+                            <td>—</td>
+                            <td class="dispatch-cell">DISPATCH</td>
+                        </tr>
+                        <tr>
+                            <td class="addr-cell">02</td>
+                            <td>A→ALU</td>
+                            <td>ADD</td>
+                            <td>—</td>
+                            <td>03</td>
+                        </tr>
+                        <tr>
+                            <td class="addr-cell">03</td>
+                            <td>ALU→Reg</td>
+                            <td>—</td>
+                            <td>—</td>
+                            <td>00</td>
+                        </tr>
+                    </table>
+                    <div class="table-caption">
+                        Fetch routine at addresses 00-01 → DISPATCH branches to opcode-specific routines
+                    </div>
+                </div>
+                <div class="micro-note">
+                    <div class="note-box">
+                        <span>Fetch</span>
+                        <span class="note-arrow">→</span>
+                        <span>Decode</span>
+                        <span class="note-arrow">→</span>
+                        <span>Execute</span>
+                        <span class="note-arrow">→</span>
+                        <span>Repeat</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
