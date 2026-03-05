@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shield System Architecture</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --accent-cyan: #22d3ee;
+            --accent-purple: #a855f7;
+            --text-main: #f1f5f9;
+            --text-dim: #94a3b8;
+            --border: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            padding: 2rem;
+        }
+
+        header {
+            max-width: 1200px;
+            margin: 0 auto 3rem auto;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1rem;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            color: var(--accent-cyan);
+            letter-spacing: -1px;
+        }
+
+        header p {
+            color: var(--text-dim);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-cyan);
+        }
+
+        .card-header {
+            margin-bottom: 1rem;
+        }
+
+        .entity-name {
+            font-family: 'Fira Code', monospace;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--accent-purple);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .description {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            margin-bottom: 1rem;
+            min-height: 3.6em;
+        }
+
+        .section-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent-cyan);
+            margin: 1rem 0 0.5rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .pill-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .pill {
+            background: #0f172a;
+            border: 1px solid var(--border);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.75rem;
+        }
+
+        .relation-item {
+            font-size: 0.85rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .relation-type {
+            color: var(--accent-purple);
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        @media (max-width: 600px) {
+            body { padding: 1rem; }
+            .container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Shield Architecture Schema</h1>
+    <p>Zero-Knowledge Proxy Identity & Threat Management System</p>
+</header>
+
+<div class="container" id="schema-grid">
+    </div>
+
+<script>
+    const schemaData = {
+        "User": {
+            "description": "Represents the real user authenticated via Firebase. Tracks linked devices but never stores passwords.",
+            "fields": ["firebase_uid", "devices", "created_at", "status"],
+            "relations": { "hasMany": ["ShieldIdentity"] }
+        },
+        "Device": {
+            "description": "Subdocument of User. Tracks devices the user has linked, device type, last active timestamp, and push tokens.",
+            "fields": ["device_id", "device_name", "device_type", "last_active", "push_token"]
+        },
+        "ShieldIdentity": {
+            "description": "AI-generated proxy identity used to interact with external services. Enables zero-knowledge browsing.",
+            "fields": ["user_id", "proxy_email", "proxy_phone", "browser_fingerprint", "status"],
+            "relations": { "belongsTo": "User", "hasMany": ["IdentityRotation", "ThreatEvent", "AuditLog"] }
+        },
+        "IdentityRotation": {
+            "description": "Tracks automatic or manual rotation of Shield identities to replace compromised credentials.",
+            "fields": ["shield_id", "rotation_type", "timestamp", "reason", "new_shield_id"],
+            "relations": { "belongsTo": "ShieldIdentity" }
+        },
+        "CommunicationProxy": {
+            "description": "Captures and sanitizes all messages (email/SMS) sent to a ShieldIdentity, removing trackers.",
+            "fields": ["shield_id", "type", "sender", "received_at", "status", "sanitized_content"],
+            "relations": { "belongsTo": "ShieldIdentity" }
+        },
+        "ThreatEvent": {
+            "description": "Logs anomalous or suspicious activity related to a ShieldIdentity, e.g., phishing or leaks.",
+            "fields": ["shield_id", "event_type", "detected_at", "severity", "metadata"],
+            "relations": { "belongsTo": "ShieldIdentity" }
+        },
+        "AuditLog": {
+            "description": "Immutable log of all critical events stored with blockchain hash for accountability.",
+            "fields": ["shield_id", "action", "timestamp", "blockchain_hash"],
+            "relations": { "belongsTo": "ShieldIdentity" }
+        },
+        "AIEngineLog": {
+            "description": "Optional logs of AI engine decisions, e.g., flagged phishing with confidence scores.",
+            "fields": ["shield_id", "action", "confidence", "timestamp"],
+            "relations": { "belongsTo": "ShieldIdentity" }
+        },
+        "ShieldAccess": {
+            "description": "Tracks each access of a ShieldIdentity, including device, IP, and geo-location.",
+            "fields": ["shield_id", "device_id", "ip_address", "location", "accessed_at"],
+            "relations": { "belongsTo": "ShieldIdentity" }
+        }
+    };
+
+    const grid = document.getElementById('schema-grid');
+
+    Object.entries(schemaData).forEach(([key, value]) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        
+        let relationsHtml = '';
+        if(value.relations) {
+            relationsHtml = `<div class="section-title">Relations</div>`;
+            Object.entries(value.relations).forEach(([relType, target]) => {
+                const targets = Array.isArray(target) ? target.join(', ') : target;
+                relationsHtml += `<div class="relation-item"><span class="relation-type">${relType}:</span> ${targets}</div>`;
+            });
+        }
+
+        card.innerHTML = `
+            <div class="card-header">
+                <span class="entity-name">${key}</span>
+                <p class="description">${value.description}</p>
+            </div>
+            <div class="section-title">Fields</div>
+            <div class="pill-container">
+                ${value.fields.map(f => `<span class="pill">${f}</span>`).join('')}
+            </div>
+            ${relationsHtml}
+        `;
+        grid.appendChild(card);
+    });
+</script>
+
+</body>
+</html>
